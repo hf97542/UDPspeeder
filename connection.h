@@ -252,7 +252,7 @@ struct stat_t
 };
 
 
-struct conn_info_t     //stores info for a raw connection.for client ,there is only one connection,for server there can be thousand of connection since server can
+struct conn_info_t:not_copy_able_t     //stores info for a raw connection.for client ,there is only one connection,for server there can be thousand of connection since server can
 //handle multiple clients
 {
 	union  tmp_union_t
@@ -306,7 +306,14 @@ struct conn_info_t     //stores info for a raw connection.for client ,there is o
 
 	conn_info_t()
 	{
-		conv_manager.s.additional_clear_function=server_clear_function;
+		if(program_mode==server_mode)
+		{
+			conv_manager.s.additional_clear_function=server_clear_function;
+		}
+		else
+		{
+			assert(program_mode==client_mode);
+		}
 	}
 
 	~conn_info_t()
@@ -318,10 +325,11 @@ struct conn_info_t     //stores info for a raw connection.for client ,there is o
 	{
 		last_active_time=get_current_time();
 	}
+	/*
 	conn_info_t(const conn_info_t &b)
 	{
 		assert(0==1);
-	}
+	}*/
 };
 /*
 struct conn_manager_t  //manager for connections. for client,we dont need conn_manager since there is only one connection.for server we use one conn_manager for all connections
